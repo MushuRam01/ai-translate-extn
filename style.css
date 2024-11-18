@@ -1,0 +1,55 @@
+/* General body styling for the popup */
+body {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  margin: 10px;
+  padding: 0;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+/* Header styling */
+h3 {
+  font-size: 16px;
+  margin: 0 0 10px 0;
+  color: #0056b3;
+  text-align: center;
+}
+
+/* Button styling */
+button {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  margin: 10px 0;
+  font-size: 14px;
+  color: #fff;
+  background-color: #0056b3;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #004494;
+}
+
+/* Color picker styling */
+#color-picker {
+  margin-top: 10px;
+  text-align: center;
+}
+
+label {
+  display: inline-block;
+  margin-right: 5px;
+  font-weight: bold;
+}
+
+input[type="color"] {
+  width: 30px;
+  height: 30px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
