@@ -1,59 +1,51 @@
-// Listen for messages from the popup
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "replaceRandomWords") {
-    const replacementPhrase = request.phrase;
-    console.log(`Replacing random words with: ${replacementPhrase}`);
-    replaceRandomWords(replacementPhrase);
-  }
-  sendResponse();
-});
+// Content script to replace words on the page
+let enabled = true; // Check if the extension is enabled
+let language = "es"; // Default language (Spanish)
 
-// Function to replace random words
-function replaceRandomWords(replacementPhrase) {
-  // Regular expression to match words
-  const regex = /\b\w+\b/g;
+// Function to replace text on the page
+const replaceText = async () => {
+    if (!enabled) return;
 
-  // Get all text nodes in the document
-  const textNodes = getTextNodesInDocument();
+    const elements = document.body.querySelectorAll("*:not(script):not(style)");
+    for (const element of elements) {
+        for (const node of element.childNodes) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                const originalText = node.textContent.trim();
+                if (originalText) {
+                    const translatedText = await translateText(originalText, language);
+                    saveToLocalDatabase(originalText, translatedText);
+                    node.textContent = translatedText;
+                }
+            }
+        }
+    }
+};
 
-  textNodes.forEach(node => {
-    let text = node.nodeValue;
-    let newText = text.replace(regex, (word) => {
-      return Math.random() > 0.7 ? replacementPhrase : word; // 30% chance to replace each word
+// Function to call Gemini AI translation API
+const translateText = async (text, targetLanguage) => {
+    const response = await fetch("https://api.gemini-ai/translate", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer YOUR_API_KEY"
+        },
+        body: JSON.stringify({ text, target_language: targetLanguage })
     });
-    
-    // Only replace if the text has changed
-    if (newText !== text) {
-      node.nodeValue = newText;
-      highlightTextNode(node); // Optional: Highlight the replaced word
-    }
-  });
-}
+    const data = await response.json();
+    return data.translated_text || text; // Fallback to original text if translation fails
+};
 
-// Helper function to get all text nodes in the document
-function getTextNodesInDocument() {
-  let textNodes = [];
-  (function recursive(node) {
-    if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim()) {
-      textNodes.push(node);
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      for (let i = 0; i < node.childNodes.length; i++) {
-        recursive(node.childNodes[i]);
-      }
-    }
-  })(document.body);
-  return textNodes;
-}
+// Function to store translations locally
+const saveToLocalDatabase = (original, translated) => {
+    const entry = { original, translated, timestamp: new Date() };
+    const db = window.localStorage.getItem("translations") || "[]";
+    const updatedDB = JSON.parse(db);
+    updatedDB.push(entry);
+    window.localStorage.setItem("translations", JSON.stringify(updatedDB));
+};
 
-// Function to highlight the replaced word
-function highlightTextNode(node) {
-  // Highlight the replaced word with yellow background and red text
-  const span = document.createElement("span");
-  span.style.backgroundColor = "yellow";
-  span.style.color = "red";
-  span.style.fontWeight = "bold";
-  span.textContent = node.nodeValue;
-  
-  // Replace the original node with the span
-  node.replaceWith(span);
-}
+// Observe changes to the DOM for dynamic content
+const observer = new MutationObserver(replaceText);
+observer.observe(document.body, { childList: true, subtree: true });
+
+replaceText(); // Initial run
