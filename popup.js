@@ -1,18 +1,24 @@
-const toggleButton = document.getElementById("toggle-extension");
-const languageSelector = document.getElementById("language-selector");
+document.addEventListener('DOMContentLoaded', function () {
+  const replaceButton = document.getElementById("replace-headings");
+  const phraseInput = document.getElementById("phrase");
 
-chrome.storage.local.get(["enabled", "language"], (settings) => {
-    toggleButton.checked = settings.enabled ?? true;
-    languageSelector.value = settings.language ?? "es";
-});
+  // Load saved phrase from storage
+  chrome.storage.sync.get(["headingReplacementPhrase"], (result) => {
+    phraseInput.value = result.headingReplacementPhrase || "Default Replacement Phrase";
+  });
 
-toggleButton.addEventListener("change", () => {
-    const isEnabled = toggleButton.checked;
-    chrome.storage.local.set({ enabled: isEnabled });
-    chrome.tabs.reload(); // Reload to apply changes
-});
+  // Listen for the button click
+  replaceButton.addEventListener("click", () => {
+    const phrase = phraseInput.value;
 
-languageSelector.addEventListener("change", (event) => {
-    const selectedLanguage = event.target.value;
-    chrome.storage.local.set({ language: selectedLanguage });
+    // Save the phrase in storage
+    chrome.storage.sync.set({ headingReplacementPhrase: phrase }, () => {
+      console.log(`Saved replacement phrase: ${phrase}`);
+    });
+
+    // Send a message to the content script to replace random words
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, { action: "replaceRandomWords", phrase });
+    });
+  });
 });

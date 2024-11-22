@@ -1,4 +1,1 @@
-chrome.runtime.onInstalled.addListener(() => {
-    chrome.storage.local.set({ enabled: true, language: "es" });
-});
-
+// background.js - Optional for this simple extension

@@ -1,23 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Translate Extension</title>
+  <title>Random Word Replacer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 10px;
+      width: 200px;
+    }
+    h3 {
+      font-size: 16px;
+      text-align: center;
+    }
+    button {
+      display: block;
+      margin: 10px auto;
+      padding: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      background-color: #0056b3;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #004494;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 5px;
+      margin: 10px 0;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
-    <h1>AI Translate Extension</h1>
-    <label>
-        <input type="checkbox" id="toggle-extension"> Enable Extension
-    </label>
-    <br><br>
-    <label for="language-selector">Select Language:</label>
-    <select id="language-selector">
-        <option value="es">Spanish</option>
-        <option value="fr">French</option>
-        <option value="de">German</option>
-        <!-- Add more languages as needed -->
-    </select>
-    <script src="popup.js"></script>
+  <h3>Random Word Replacer</h3>
+  <label for="phrase">Replacement Phrase:</label>
+  <input type="text" id="phrase" placeholder="Enter your phrase" />
+  <button id="replace-headings">Replace Random Words</button>
+  <script src="popup.js"></script>
 </body>
 </html>
